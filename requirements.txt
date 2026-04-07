@@ -1,0 +1,11 @@
+pandas
+numpy
+scikit-learn
+statsmodels
+pandas-datareader
+pyarrow
+plotly
+streamlit
+scipy
+yfinance
+openpyxl
