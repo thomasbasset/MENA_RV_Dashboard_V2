@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 import statsmodels.api as sm
+from statsmodels.tsa.stattools import adfuller
 from statsmodels.regression.rolling import RollingOLS
 
 import plotly.graph_objects as go
@@ -790,7 +791,7 @@ def build_single_bond_rv_table(
         focus_mode = "BUY"
 
     rows = []
-    for x, y, buy, sell, cur_sb, mu_sb, sd, z, z_abs in _iter_pairs_stats(
+    for x, y, buy, sell, cur_sb, mu_sb, sd, z, z_abs, pval, hl in _iter_pairs_stats(
         df_bucket, tickers_sorted, asof, window, min_periods, mode, winsor_p
     ):
         if focus_ticker not in {x, y}:
@@ -808,6 +809,8 @@ def build_single_bond_rv_table(
                 "Current Spread": round(float(cur_sb), 2),
                 "Average Spread": round(float(mu_sb), 2),
                 "Z-score": round(float(z_abs), 2),
+                "ADF p-value": round(float(pval), 4) if pd.notna(pval) else np.nan,
+                "Half-life": round(float(hl), 1) if pd.notna(hl) else np.nan,
             }
         )
 
@@ -1004,7 +1007,8 @@ def show_single_bond_rv_finder(
     tbl = tbl.reset_index(drop=True)
     tbl.index = np.arange(1, len(tbl) + 1)
 
-    sty = style_rv_table(tbl).format({"Current Spread": "{:.2f}", "Average Spread": "{:.2f}", "Z-score": "{:.2f}"})
+    sty = style_rv_table(tbl).format({"Current Spread": "{:.2f}", "Average Spread": "{:.2f}", "Z-score": "{:.2f}","ADF p-value": "{:.4f}",
+    "Half-life": "{:.1f}"})
     st.table(sty)
     st.markdown("</div>", unsafe_allow_html=True)
 
